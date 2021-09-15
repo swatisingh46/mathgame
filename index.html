@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathQuiz</title>
+    <style>
+        html{
+            height: 100%;
+            background: radial-gradient(circle ,#fff ,rgb(177, 224, 255));
+        }
+        #container{
+            height: 400px;
+            width: 550px;
+            background-color: #90dbfd;
+            margin: 100px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 4px 4px 0px #009de4;
+            position: relative;
+        }
+        #score{
+            background-color: #F1FF92;
+            padding: 10px;
+            position: absolute;
+            left: 500px;
+            box-shadow: 3px 3px 0px #9da853;
+        }
+        #correct{
+            position: absolute;
+            left: 250px;
+            background-color: #0de923;
+            color: white;
+            padding: 11px;
+            display: none;
+        }
+        #wrong{
+            position: absolute;
+            left: 250px;
+            background-color: #de401a;
+            color: white;
+            padding: 11px;
+            display: none;
+        }
+        #question{
+            width:450px;
+            height: 150px;
+            margin: 50px auto 10px auto;
+            background-color: #009de4;
+            box-shadow: 0px 4px 0px #007ab3;
+            font-size: 100px;
+            text-align: center;
+            font-family: cursive, sans-serif;
+        }
+        #instruction{
+            width:450px;
+            height:50px;
+            background-color: rgb(0, 80, 230);
+            margin: 10px auto;
+            text-align: center;
+            line-height: 45px;
+            box-shadow: 3px 3px 0px rgb(0, 59, 168);
+            color: white;
+        }
+        #choices{
+            height: 100px;
+            width: 450px;
+            margin: 5px auto;
+        }
+        .box{
+            width: 85px;
+            height: 85px;
+            background-color: rgb(234, 241, 255);
+            float: left;
+            margin-right: 36.5px;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 3px 3px rgb(0, 0, 0, 0.2);
+            text-align: center;
+            line-height: 80px;
+            position: relative;
+            transition: all 0.2s;
+
+        }
+        .box:hover{
+            background-color: rgb(146, 181, 255);
+        }
+        .box:active , #start-reset:active{
+            box-shadow: 0px 0px rgb(146, 181, 255);
+            top: 4px;
+        }
+        #box4{
+            margin-right: 0;
+        }
+        #start-reset{
+            width: 78px;
+            background-color: rgb(0, 96, 223);
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 3px 3px rgb(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            transition: all 0.2s;
+            color: white;
+        }
+        #start-reset:hover{
+            background-color: rgb(58, 129, 223);
+        }
+        #time-remaining{
+            width: 200px;
+            padding: 10px;
+            position: absolute;
+            top: 20px;
+            background-color: rgb(107, 196, 255);
+            border-radius: 3px;
+            display: none;
+        }
+        #game-over{
+            height: 200px;
+            width: 500px;
+            background: linear-gradient(#F3CA6B, #F3706C);
+            color: white;
+            font-size: 2.5em;
+            text-align: center;
+            text-transform: uppercase;
+            position: absolute;
+            top: 100px;
+            left: 45px;
+            z-index: 2;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="score">
+            Score: <span id="scorevalue">0</span>
+        </div>
+        <div id="correct">
+            Correct
+        </div>
+        <div id="wrong">
+            Try again
+        </div>
+        <div id="question">
+
+        </div>
+        <div id="instruction">
+            Click on the Correct answer
+        </div>
+        <div id="choices">
+            <div id="box1" class="box"></div>
+            <div id="box2" class="box"></div>
+            <div id="box3" class="box"></div>
+            <div id="box4" class="box"></div>
+        </div>
+        <div id="start-reset">Start Game</div>
+        <div id="time-remaining">Time remaining: 
+            <span id="time-remaining-value">60</span> sec</div>
+        <div id="game-over">
+            Game Over!
+        </div>
+
+    </div>
+    <script>
+        var playing=false;
+        var score;
+        var action;
+        var timeremaining;
+        var correctAnswer;
+        document.getElementById("start-reset").onclick=function(){
+            if(playing==true){
+                location.reload();
+            }else{
+                playing=true;
+                score=0;
+                document.getElementById("scorevalue").innerHTML=score;
+                show("time-remaining");
+                timeremaining=60;
+                document.getElementById("time-remaining-value").innerHTML=timeremaining;
+                hide("game-over");
+                
+                document.getElementById("start-reset").innerHTML="Reset Game";
+                startCountdown();
+                generateQA();
+            }
+        }
+        for(i=1; i<5; i++){
+            document.getElementById("box"+i).onclick=function(){
+            if(playing==true){
+                if(this.innerHTML==correctAnswer){
+                    score++;
+                    document.getElementById("scorevalue").innerHTML=score;
+                    hide("wrong");
+                    show("correct");
+                    setTimeout(function(){
+                        hide("correct");
+                    },1000);
+                    generateQA();
+                } else{
+                    hide("correct");
+                    show("wrong");
+                    setTimeout(function(){
+                        hide("wrong");
+                    },1000);
+
+                }
+
+                        
+                    
+            }
+            }
+        }
+        function startCountdown(){
+            action=setInterval(function(){
+                timeremaining-=1;
+                document.getElementById("time-remaining-value").innerHTML=timeremaining;
+                if(timeremaining==0){
+                    stopcounter();
+                    show("game-over");
+                    document.getElementById("game-over").innerHTML=
+                    "<p>Game over!</p><p>Your score is " + score + ".</p>"; 
+                    hide("time-remaining");
+                    hide("correct");
+                    hide("wrong");
+                    playing=false;
+                    document.getElementById("startreset").innerHTML="Start Game";
+                }
+            }, 1000);
+        }
+        function stopcounter(){
+            clearInterval(action);
+        }
+        
+        function hide(Id){
+            document.getElementById(Id).style.display = "none";   
+        }
+        function show(Id){
+            document.getElementById(Id).style.display = "block";   
+        }
+        function generateQA(){
+            var x=1+Math.round(9*Math.random());
+            var y=1+Math.round(9*Math.random());
+            correctAnswer=x*y;
+            document.getElementById("question").innerHTML=x+"x"+y;
+            var correctPosition=1+Math.round(3*Math.random());
+            document.getElementById("box"+correctPosition).innerHTML=correctAnswer;
+            var answers=[correctAnswer];
+            for(i=1; i<5; i++){
+                if(i!=correctPosition){
+                    var wrongAnswer;
+                    do{
+                        wrongAnswer=(1+Math.round(9*Math.random()))*
+                        (1+Math.round(9*Math.random()));
+                    }while(answers.indexOf(wrongAnswer)>-1)
+                
+                    document.getElementById("box"+i).innerHTML=wrongAnswer;
+                    answers.push(wrongAnswer);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
